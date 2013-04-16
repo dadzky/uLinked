@@ -1,0 +1,202 @@
+<?php
+
+	include 'DAO/BaseDAO.php';
+	class MainDAO extends BaseDAO{
+		
+		function GetUserFullName($UserID){
+		
+			$this->openCon();
+				
+				$sql = "SELECT ui.users_info_ID,ui.Fname,ui.Lname,ui.Nname FROM users AS u, users_info AS ui
+						WHERE u.usersID = ui.usersID AND ui.usersID = ?";
+				$stmt = $this->dbCon->prepare($sql);
+				$stmt->bindParam(1,$UserID);
+				$stmt->execute();
+				
+			$this->closeCon();
+		
+			$info = $stmt->fetch();
+			return "<span class='profilename' id='".$info[0]."'>".$info[1]." ".$info[2]."<span class='nickname'> (".$info[3].")</span></span>";
+			
+		}
+		
+		function CountUsersOnline(){
+		
+			$this->openCon();
+				
+				$sql = "SELECT COUNT(usersID) FROM users WHERE status = 'online'";
+				$stmt = $this->dbCon->prepare($sql);
+				$stmt->bindParam(1,$UserID);
+				$stmt->execute();
+				
+			$this->closeCon();
+			
+			$NumberOfUser = $stmt->fetch();
+			return $NumberOfUser[0];
+		}
+		
+		function GetListOfUsers($name){
+		   	   
+			$this->openCon();
+				
+				$sql = "SELECT users_info_ID,Fname,Lname FROM users_info
+						WHERE Fname LIKE '".$name."%' OR Lname LIKE '".$name."%'";
+				$stmt = $this->dbCon->prepare($sql);
+				$stmt->execute();
+				
+				
+	   	$this->closeCon();
+	   	
+	   	while($row = $stmt->fetch()){
+			      echo "<span id='search".$row[0]."'> ".$row[1]." ".$row[2]. "<br /></span>";
+		   }
+			   
+						
+		}
+		
+		function SaveChatMsg($UserID,$Msg){
+		   	   
+			$this->openCon();
+				
+				$sql = "INSERT INTO public_chat_msg VALUES(null,?,?)";
+				$stmt = $this->dbCon->prepare($sql);
+				$stmt->bindParam(1,$UserID);
+				$stmt->bindParam(2,$Msg);
+				$stmt->execute();
+								
+	   	$this->closeCon();
+	   	
+		}
+		
+		function RefreshPubChat(){
+		
+		    	   
+			$this->openCon();
+				
+				$sql = "SELECT pcm.pcmID,ui.Fname,ui.Lname,pcm.message FROM users_info AS ui,users AS u,public_chat_msg AS pcm
+				        WHERE pcm.usersID= ui.usersID AND ui.usersID = u.usersID ORDER BY pcm.pcmID";
+				$stmt = $this->dbCon->prepare($sql);
+				
+				$stmt->execute();
+								
+	   	$this->closeCon();
+	   	
+	   	while($row = $stmt->fetch()){
+	      	echo "<span id='chat".$row[0]."' class='ChatUser'>".$row[1]." ".$row[2]." :</span>"."&nbsp".$row[3]."<br/>";
+	      
+	   	}
+	   	
+		}
+		
+		function SaveUploaded_Img($UserID,$NewProfilePic){
+		
+			$this->openCon();
+				
+				$sql = "SELECT * FROM Profile_pics WHERE usersID = ?";
+				$stmt = $this->dbCon->prepare($sql);
+				$stmt->bindParam(1,$UserID);				
+				$stmt->execute();
+				
+				$found = $stmt->fetch();
+				
+				if($found[0] == "" || $found[0] == null){
+					$sql2 = "INSERT INTO Profile_pics VALUES(null,?,?)";
+					$stmt = $this->dbCon->prepare($sql2);
+					$stmt->bindParam(1,$UserID);			
+					$stmt->bindParam(2,$NewProfilePic);		
+					$stmt->execute();	
+					
+				}else{
+					$sql2 = "UPDATE Profile_pics SET pic_name = ? WHERE usersID = ?";
+					$stmt = $this->dbCon->prepare($sql2);				
+					$stmt->bindParam(1,$NewProfilePic);	
+					$stmt->bindParam(2,$UserID);				
+					$stmt->execute();	
+						
+					
+				}
+				
+							
+	   	$this->closeCon();
+	   	
+		}
+		
+		function GetUsersProfile_Pic($UserID){
+		
+			$this->openCon();
+				
+				$sql = "SELECT pic_name FROM Profile_pics WHERE usersID = ?";
+				$stmt = $this->dbCon->prepare($sql);
+				$stmt->bindParam(1,$UserID);				
+				$stmt->execute();
+				
+				$Pic_name = $stmt->fetch();
+				
+			$this->closeCon();
+			
+			return $Pic_name[0];
+	   	
+		}
+		
+		function SaveUsersPost($UserID,$Users_Post,$P_date){
+				
+			$this->openCon();
+				
+				$sql = "INSERT INTO users_post values(null,?,?,?)";
+				$stmt = $this->dbCon->prepare($sql);
+				$stmt->bindParam(1,$UserID);	
+				$stmt->bindParam(2,$Users_Post);
+				$stmt->bindParam(3,$P_date);			
+				$stmt->execute();				
+				
+			$this->closeCon();
+		
+		}
+		
+		
+		function GetUsersPost($UserID){
+		
+		    $this->openCon();
+				
+				$sql = "SELECT p.postID,ui.Fname,ui.Lname,p.users_post,p.date_posted FROM users as u, users_post as p, users_info as ui
+				        WHERE ui.usersID = u.usersID AND p.usersID = u.usersID AND p.usersID = ? ORDER BY postID DESC";
+				$stmt = $this->dbCon->prepare($sql);
+				$stmt->bindParam(1,$UserID);			
+				$stmt->execute();				
+				
+			$this->closeCon();
+			
+			while($row = $stmt->fetch()){
+			
+			    echo "<p class='Displayed_Post' id=".$row[0].">
+			            <span class='Users_Posted_Name'>".$row[1]." ".$row[2].": <br/></span>
+			            <span class='Users_Posted_Content'>".$row[3]." <br/></span>
+			            <span class='Date_Posted'>".$row[4]."<br/></span>
+			            <span class='Post_Actions'><span class='like_btn'>like</span> &nbsp &nbsp &nbsp comment &nbsp &nbsp share &nbsp &nbsp remove</span><hr/>
+			         </p>";
+			}
+		}
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+?>

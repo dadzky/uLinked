@@ -1,0 +1,9 @@
+<?php
+   
+   include 'DAO/MainDAO.php';
+   
+   $UserID = $_POST['name'];
+   $action = new MainDAO();
+   $action -> GetListOfUsers($UserID);
+
+?>

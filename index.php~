@@ -1,0 +1,99 @@
+<?php
+	session_start();
+	
+	include 'DAO/AccountsDAO.php';
+	$action = new Chikka();
+	if(isset($_SESSION['UserID'])){
+		header('Location:mainpage.php');
+	}else if(isset($_POST['email']) && isset($_POST['password'])){
+		$verrified = $action -> LogInUser($_POST['email'],$_POST['password']);
+		if($verrified){
+			$UserID = $action->GetUseriD_SetUserStatus($_POST['email']);
+			$_SESSION['UserID'] = $UserID;
+			header('Location: mainpage.php');
+		}else{
+		   
+			$errMsg = $_POST['email']." => ".$_POST['password'];//"<div class='ErrorMsg'>Unknown User!</div>";
+			
+		}
+	}
+	
+	
+
+?>
+
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<link rel='stylesheet' type='text/css' href='css/index.css'/>
+	<script type='text/javascript' src='js/jquery.js'></script>
+	<script type='text/javascript' src='js/jquery-ui-darkhive.js'></script>
+	<script type='text/javascript' src='js/indexscript.js'></script>
+	<title>chikka</title>
+</head>
+<body>
+	<div class='wrapper'>
+		<input type='hidden' name='UserID' value=<?php if(isset($UserID)){echo "'".$UserID."'";}?>/><!--Sets the ID of the User-->
+		<div class='header'>
+			<div class='div-bg-header'>
+				<div class='div-img'><img src='images/messenger.png'/></div>
+				<img src='images/th_chikka.jpg'/>
+				<div class='div-login-form'>
+					<form method='POST'>
+						<label for='email'>Email Add:</label>
+						<input type='text' name='email' id='username-email'/>
+						<label  for='password'>Password:</label>
+						<input type='password' name='password' id='password'/>
+						<input type='submit' value='Log In' id='btn_login'/>
+					</form>
+				</div><!--end tag for class div-login-form-->
+			</div><!--end tag for class div-bg-header-->
+			<?php
+				
+				if(isset($errMsg)){
+					echo $errMsg;
+				}
+			
+			?>
+		</div><!--end tag div with a class header-->
+		
+		<div class='div-center'>
+			<div class='div-left'>
+				
+			</div><!--end tag for class div-left-->
+			
+			<div class='div-right-signup'>
+				<h3 class='h3signup'><span>Sign Up</span> <br/> ICT Phase II..</h3>
+				<hr/>
+				<form id='Registration_form'>
+					
+					<input type='text' id='firstname' name='firstname' class='Register_name' placeholder='Firstname' title='ENTER YOUR FIRST NAME'/><span></span>
+					<p>
+					<input type='text' id='lastname' name='lastname' class='Register_name' placeholder='Lastname' title='ENTER YOUR LAST NAME'/>
+					<p>
+					<input type='text' id='nickname' name='nickname' class='Register_name' placeholder='Nickname' title='ENTER YOUR NICKNAME'/>
+					<p>
+					<input type='text' id='emailadd' name='emailadd'  placeholder = 'Email Address' title='ENTER YOUR EMAIL ADDRESS'/>
+					<p>
+					<input type='password' id='passW' name='passW' placeholder='Password' title='ENTER YOUR PASSWORD'/>
+					<p>
+					<input type='password' id='repassword' name='repassword' placeholder="Re-enter Password" title='RE-ENTER YOUR PASSWORD'/>
+					<p>
+					<select id='gender' name='gender'>
+						<option value="">Gender</option>
+						<option value="Male">Male</option>
+						<option value="Female">Female</option>
+					</select>
+					<input type='text' id='bdate' name='bdate'  placeholder = 'Birthdate' />
+					<p>
+					<input type='hidden' name='age' id='age' />
+					
+				</form>
+					<button id='btn_signup'>Sign-Up</button>
+			</div><!--end tag for class div-right-signup-->
+		</div><!--end tag for class div-center-->
+	</div><!--end tag div with a class wrapper-->
+</body>
+
+</html>

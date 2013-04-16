@@ -1,0 +1,179 @@
+/*ramz_new edtion 01/16/13*/
+$(document).ready(function(){
+   
+   var pub_chat_interval;
+	//var name = "Ramel Coletana";
+	//$(function() {
+	//	$('#searchFriends').prop('placeholder', "What's your chikka, "+name);
+	//});
+	
+	/*Setting Options Area*/
+	$('#setting').click(function(){
+		$('#set').toggle();
+	});
+	$('#set').click(function(){
+		$('#set').toggle();
+	});
+	
+	/*Uploading New Profile Picture Area*/
+	
+	$('#span-change-pic').click(function(){
+		$('#div-editp-option').show();
+	});
+	$('#li-upload_pic').click(function(){
+		$('#div-form-upload-profile-pic').show(1000);
+		$('#div-editp-option').hide(1000);
+	});
+	$('#btn_CancelUploadPic').click(function(){
+		$('#div-form-upload-profile-pic').hide(1000);
+	});
+	
+	/*Search for People That i use to know..*/
+	$('#searchFriends').keyup(function(){
+	   var name = $(this).val()
+	
+      if(name == ""){
+        name = '1';
+      }
+        var obj={'name':name};
+	      $.ajax({
+	         type:'POST',
+	         url:'GetListOfUsers.php',
+	         data: obj,
+	         success:function(data){
+	            console.log(data);
+	            $('.SearchResult').html(data);
+	           
+	         },
+	         error:function(data){
+	            alert("Error on Getting List of User! => "+ data);
+	         }
+	
+	      });	      
+	   
+	})
+	/*Making Post On Wall*/
+	
+	$('#btn_post').click(function(){
+	   
+	    var presentDate = GetPresentDate();
+	    var user_post=$('#post-message').val();
+	    var obj = {'users_post':user_post, 'P_date':presentDate};
+	 //  $('#div-displayed-post').append(user_post+"<br/>");
+	    $.ajax({
+	        type:'POST',
+	        url: 'SaveUsersPost.php',
+	        data:obj,
+	        success:function(data){
+	            $('#post-message').val("");
+	        },
+	        error:function(data){
+	            alert("Error on posting => " + data);
+	        }
+	    
+	    });
+	});
+
+	/*Like in Post*/
+
+   $('span').click(function(){
+      alert(');
+      $(this).removeClass();
+    
+      
+   })
+	
+	//refreshes the wall -note: Not Permanent!
+	setInterval(function(){
+	   $.ajax({
+	        type:'POST',
+	        url: 'GetUsersPost.php',
+	        success:function(data){
+	           $('#div-displayed-post').html(data);
+	        },
+	        error:function(data){
+	            alert("Error on posting => " + data);
+	        }
+	    
+	    }); 
+	},3000);
+
+	
+	/*----------------------------------------*/
+	
+	/*Chat Area..*/
+	$('#chat-form').submit(function(){
+	   var msg = $('input[name=chat-message]').val();
+	   var obj = {'msg':msg};
+	   
+	  
+	   $.ajax({
+	      type:'POST',
+	      url:'SavePublic_ChatMsg.php',
+	      data:obj,
+	      success:function(data){
+	         console.log(data);
+	      },
+	      error:function(data){
+	         alert("Error on saving public chat message => " + data);
+	      } 
+	   
+	   });
+	   
+	   $('input[name=chat-message]').val("");
+	   return false;
+	
+	});
+	
+	//refreshes the messages on chat!
+	/*pub_chat_interval = setInterval(function(){
+	   $.ajax({
+	      type:"POST",
+	      url:"RefreshPubChat.php",
+	      success:function(data){
+			
+	         $('#div-for-main-table').html(data);
+	      },
+	      error: function(data){
+	         alert("Error on refreshing public chat => " + data);
+	      }
+	   });  
+	   
+	},1500);*/
+
+	
+	//stops the interval
+	/*add some codes below (removeInterval)*/	
+		
+});
+
+function GetPresentDate(){
+    var date = new Date();
+    var yr = date.getFullYear();
+    var mn = date.getMonth()+1;
+    var day = date.getDate();
+    
+    return yr+"-"+mn+"-"+day;
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
